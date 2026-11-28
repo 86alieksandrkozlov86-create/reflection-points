@@ -47,6 +47,12 @@ input[type=checkbox]{width:18px;height:18px;accent-color:#5ff0ff}
 #toast.on{opacity:1}
 #fab{position:fixed;right:8px;top:120px;z-index:5;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 6px 5px;border-radius:16px;background:rgba(10,14,30,.88);border:1px solid #2fd47e;box-shadow:0 0 14px rgba(47,212,126,.35);font-size:10px}
 #fab img{width:46px;height:46px;border-radius:11px;display:block}
+#updBar{position:fixed;left:8px;right:8px;top:8px;z-index:9;display:none;gap:8px;align-items:center;flex-wrap:wrap;background:rgba(14,40,30,.96);border:1px solid #2fd47e;border-radius:14px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:14px}
+#updBar.on{display:flex}
+#updBar .ubText{flex:1;min-width:180px;line-height:1.35}
+#updBar .ubBtns{display:flex;gap:6px}
+#updBar button{padding:7px 10px;font-size:13px}
+#updBar button.ok{background:#1d7a4a;border-color:#2fd47e}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10;display:none;align-items:center;justify-content:center;padding:16px}
 #modal.on{display:flex}
 #modalBox{position:relative;background:#0d1430;border:1px solid #2d3b6e;border-radius:18px;padding:20px 18px 18px;max-width:380px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.6)}
@@ -145,6 +151,8 @@ input[type=checkbox]{width:18px;height:18px;accent-color:#5ff0ff}
 <script>
 // копія цього файлу (до будь-яких змін сторінки) — щоб ним можна було поділитися
 const SELF_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+// номер версії — збільшується з кожним оновленням файлу
+const APP_BUILD = 4;
 const ICON192 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAMAAABlApw1AAABgFBMVEViTZ9fXWVNmE0yZTSpY96jlOxSKV+jqKboolyljTWiNZAqLh1lyl01Lmpg2+LebEprpPGi4JjIqj3h2uQ8q8Ti2GZ4ZOJLOSVv8aDlZdFHn66ZVavmmJMpXFk2lq9fUSqJL3qpaFCtn1boVLDVlO+P62yH3+vGPqtBgz6LYzLc2I49gk8ob4MGCRNf8P8AAAANGSURJzEKEhsdRlEYOkUkWWUqZ3NP1u5a6PjxzEf+/v4VMzvxdEy9ZfLwSsx382eDZvIhUV01h5T71ktHuMkweYZCprM7lqUiTFdOxtUtcX0FCBInJy8tFjUEBxEEBhDTZ0UxJFNIyeaIc/tuWM7DcvoFCBIUDiLUQ7b0VtYEBxFHSE8yNDlz6mSNRzPZuUR8YugwJhyxVjtGsL1vOSxpO4yJdzDBavkqGRsqHUVRNHX1gVhRRyJzJ2ln6fiuOJczOkVNKSNmWSeHSrAFCBI5kJ1OHUyxlzhKOYdZR6h1Zy5r211v2feYVMgkRylZtlJL1p6zAAAAgHRSTlP////////////////////////////////////////////////////////////+/wD///////////////////////////////////+x//9OLf///////8z///9v/////////////////////////////////4///////////////+zMduMAABa+SURBVHjazV3pQ9NK1w9r68ai4u519y7vG+1Cm0ZaShdaSgsVEFBkEblXFBS5CuJV1H/9ObMlM5OkJE2izAeFNiTnN3P2mZyjPDxqTE8v7dXrC+pPHgv1+t7S9PSR5Cmtv16qq7941KfbB/DrqacYltoB0Dwm1FMMTY8Ajhf5rSDYAzh25DtDsAOwpx7TsecKQFM9xmP6aABL6rEeS0cBqKvHfNRbAmguqMd+LDSdAUwH+qQEN8ITBCUU+hHNMWEEimLaHkAzMOIRxXFpUBTBPKNpCyAY6g3iR0aGjTEywoEI4jl2ABaCoR7TDjQnYUwU8JhAPyMYFEQAGBasAOpBkE+IB3ILqVRaGKlUAaMYwRj8Q9iTAfi1X3TyEfWY+GKlrGmZTObBA/hH02qVIgUxPEyXISCLpgQiAIT8EUw9EF/WgHB5ZLQy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';
 const ICON512 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAMAAADDpiTIAAABgFBMVEVfTZ4yZTSfle5n2uvsm2OljTWqY95Vp1JgZWic5ZpXJlxvovTl12ifo6MlLB3ZkO2hNY5jyFni3uM9rceL8W/ra9U1lq2HLnlu75+bWaqN3ObFPqrwYaXkoYpLOCOhY1NHm6cnVWVyZdbUZ1JjVS6fmVbq35A6M3JBhD4xa4OKZzA9hV3QsT4GCRNe8P4RJjENGSQKEhsqZ3MdRVEYOkUkWWVN1fHydEx382fxzEe9ZvLxS82DZvMVMjz+/v781kshUV1Y5vkweIQucX0hTVhOx9Y1hpJCp7SIc/xHucnDc/o7mKcmKDD1VtZFSE/2gVgvMzrCa/kqFTI3OkRvWNHSZkQwJFFz6WXVQ7dHyeZRU1pZW2UqGRp8YuiwlziPRzOxVjtLKCNRRyRmZ2xvOCxoOoto5/guJxtKG0mJSrE5kZ1RNHjaukKKdy+sN5cUDiJrSa9JO4xGsL11ZixzJ2nkbUhq2FyZVMdLLGdTqU1LmEZmWCfHqTwqHUU0K2gkRitMbn+BAAAAgHRSTlP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////xUHpOoAADZISURBVHja7Z0LexTF0oCHbIBAiCKCEuSqwPE22d0QFoLmkN3sblg2yE0DKKKABE8A0XhFUP766enumenuqb7MbCA9m6rn+c4nIQnJ1Dt166rqIETZ1BLgI0AAUBAAFAQABQFAQQBQEAAUBAAFAUBBAFAQABQEAAUBQEEAUBAAFAQABQFAQQBQEAAUBAAFAUBBAFAQABQEAAUBQEEAUBAAFAQABQFAQQBQEAAUBAAFAUBBAFAQABQEAAUBQEEAUBAAFAQABQFAQQBQEAAUBAAFAUBBAFAQABQEAAUBQEEAUBAAFAQABQFAQQBQEAAUBAAFAUBBAFAQABQEAAUBQEEAUBAAFAQABQFAQQBQEAAUBAAFAUBBAFAQABQEAAUBQEEAUBAAFAQABQFAQQBQEAAUBIBK3SAIwKZRfU2RzYpBsNl0X7PIZqMg2DzalxVdVQTCAAEYQuVXLbLZIAiGX/s61c8JosNg+BkINof2Fb3PgKKQsDkYCDaR9gXNnwJE4GATMRAMrfph5cfabrfb84KQP0ocZCAYWgSCYX75ZeVzzc/Pn9ZJREJKQQrBMJuBYGhf/kT7ifLbXPXTWuEctAUIht0MBEOtfqp9qk323seKXlhYaHW7q/3FxbW1xcX+arfbIh8SMZifjyGQGBg+BIJhVL+i/Xaq/IWFbr/XaTSaUxlpNhqdXr/LOUgtQcrAUCIQDK36Re0z5XcXe5DmVQ56i90EgpSB1AwMFwLBUKo/fvkT7S+0FjtW3QsUdBZbCyIDshkYJgSCYVS/qv1urzGVWxq9boaBIUQgGBb9q+qPtd/q53n1VUPQb8UMAAggAF6rP9Jcd7G49hNn0GUMDCkCwVDpfy6x/ZHlP9qYWhdp9BcYAu0UgaEhIBgu9RP9t5ntb601p9ZNmost5gmGD4FgKIK/OPKn6qdhX2cd1U8RYCEhR2AuRqD8wWAwVNafq79fmXoF0umLCAyLEQjKr//U+VPf31psTL0iaUSeIA4HBSOAAHjx+lP1L/SaU69Qmr0FjsCwGIFgWF5/av0X+q9U/RSB/kLGD5SZgKC8+k9ff5r5RWl/Z+o1SCcqDDA/IBgBBGAjX3/m/NeaU69FmmstyQ+U2g0Ew6H/yPo3pl6b0NKQHAmUlYCg1PpPX/+81r9Jjv8bnU6n1yP/Q/6zmdN6dFpSJFBeAoIyu//09V9011+zQg78W7GQ1qBYSLtAJce3WZSMQGkDgaCk+k+iP+r9Ha0/bfaIlA53BEYwODWNcD/AjYDoBhCA16x/av7dcr9Gry/oPtsSLFDQd+sfaK7GsWCJCQhK7v4dSz+ku6MldPvRDvBoGIBL9CcBg6hl1ImBNdUNlC8QCMqsf2r+O3bDv9ZtCa2e8+1TGmkLvcOEgTW7M2CxYJkJCMqrf+r+u01rR0c3be8T5z6yIlLAGbAeKja7YiBQQgKCkurfMfonp7gtqcE3mfySBkHZn2fkERKGgM3BpNlAOQkIyqx/m/lvst5esb17BpgFl0CYUdrJST9x08ENlJaAoMT67zZsh7dpK5c06CWPgGcpmJmRWstsB8yNbokJCMqn/zj8N2d/jX6s/qz2dfuBsgzECJjrzM1+nAyUj4CglPqP1LJoN/6siU8c8ANXAYEUJLMl1BPYHMFinAyUjoBgGPVPIn9R/fKIr7ISDlwdlzKQImDOCEpLQFBO/S+smaz/aitt3puZyy77gFo5VQrECUPWathaNfkBkgyUkoCgXPVfB/3HLdyA+u17v0QGAARMfmBNJQABeHX675n6ddKuvRllrNtNKXVlxQhDYJ77Af2/3CslAUGZ9D9n1X+jr/btFprqzyKQ9Bwb8oGYgLkyERAMlf47LaVjs1p4u09dHTiO+07V6tNKZWSlxAQE5dN/x+j9xZ7tASe5swjwwYOmqP1tFy9erJSXgKAcCUBa/zPof3UBHNypr8/aAaD5nGmfyEhighbEmmAZUoGgFAbARf+NbqZRcx1G9+rZ8ZMoFiSBwMrIyMVYRqZ0BCAA66v/aa3/77WgeY36+s6fJkagNZ5qXwJgqjddLgKCcgQA0aOfN9T/mPufb7+SiS3FCLRPB9vOXb0qAlBRaoLz7OcoQxgQlKYA0Cb6X23q2jKAFt36qxhDnJs5Fpwj6r8qEbCitoi0S1MOCMoSALYN7T+p+39VA5sxAcvBn+eocAJGVA8gEFCOQDAoSwBAPK+u+zvSv9qfXX8VLD6aPJcIAeDcSKUCABD1iwvJIAKwDgGAMQFoqG15r+aZLwfnJNkWkI6UkYwHUFIB751AUJoAUFcAbLReQ2v2tQfbJO3/GbBkYAQwAPxgqCSBYOB/AMATgL5N/3nNf/35nU9nZ8/Pfnrnufkrao/+VN7967wi8NFVGICpvhgIeh0GBGUIAAwBYKOlhH+uD/vhnfOC3Hmo/cSd/5NNf7CcjiUFNBKsaLrFSxEGBGUIAKIA0EH/OV5/Wf16BP55IGv/f3/VxM7UbVEusA360ZppIOi3EwjKEQBoEoCiHdlvzJ7PyOwbGdOvOv5HNbk3uU2zwREYTR4G+F4NCPx3APoKcFH93zsPyj3xc57+NSk7/gfXMt3pYzQbDODshNWEvXcCQSkCgL6j/Q9z6v/FnSdP7nwKELCsOP6fl6Hz6YDWAz7SmKe+XA9CANY7AGh2i+n/Ibf/j4/zL6gff8y9wEPu+Lcpjl9ToGamgRwOwj9fqwzVgMBrA8ArAB1d/b+I/utc27+KH/yVM1EnOd82xfTXdHxeZ1nBaR0BHTEMQADW2wH0C3bfbAUcfuIWTiim/8E/BgvFSoPfRF1Ki6V1AkFZHUDR7quHTNPH1Y8/Zx+/KJr+neYfkZWHDH2KZcgFg5I6AJoAtAt03z2het6aLfaO0r84JOV85p+Rft4ks1LwoHIJnEDgtQFo63pAGq2ih+40ApitZ4u9VykAu+Scz/RT/kU/dYy3KsCpwGKCqa8mIPDWAHAHAMZXPAEooH/mAZ5IH/uLOf5D9K/2KTmfXn6mX5WcVeh+0NQJIAAFSkALDU3/b8EMi4X7QtFv+efY6O9jPuAv129Fs4U/09NqsF2JOwF/48CgjA5gsXjrLTsDSBz/u/87dzUJ+jTRgUb+YWmCMLCwWEYnEPgdAYJ2lQaABY/aKACPufp/Onjwf1E1nwNAC0R3XL8TOyZaTjqWNIFg5AR8jgMDrw0A7ABaA/TcvUiU/OPuzw6Ojh66yiTK+bbmsgA0CdxmP7KOToU8NgGBxxGgxgH0BzlnoxbgBTnlv/nZZ599sGvv+DlmAr78V4TDQVgSGKRdy1EY0Nc5AX/jwMDnCLClcQADlNjpW/74t0j9xADsao5HMcDnkXz5y+M8FoAlgTvltkXYCbR8jgMDnw3Ams4BFO+1YXWgS1T/Z0bP7x+/EAkl4HMgQ7QlgTWpcXkaRtZrExB4HAGCT3PA+jqr+R+MAPjgzOz5vZXGeEzABHRGoBVWLM40LvT1JsDPONA3AMQIsKc5Ahig0ebHSarlUWoALpPC39lmszk+TgFgteBgOUcS+EgeXpo3/NBtT01A4KUB0NYAGy3BnOZ+mFHkN8pNwMEzZ6L/3LufENAYH//88xGGBgkG/nVOAq+pR1ewE2D1QD9NQOCvAehoNvQXdQA88mOtH0d+P3Mmyvv37q3Q22PGA9YmMkHjwUdP3ZJA8PC6CdcD01QQAXAwAGQQ1OYAcun/2rufcWEmYPTMmTMRCHvPRk6AELCLnQWxcPDzb3+pOSSBD8DTS8gJ8C5xD01A4KUB0BwCFHYA1376LJGDvP0r8gCzs7vOnt0fAcD0f37k80SCmjUJXAb6F+BzwUZyJOCbCQh8NQBH9SWgvA6A1PxSeW8nbwkiQ0Hk/2bPRgTs4F2hW//9MiXgc8OpIDs/1Jxf9TXJi5cmIPDUAECxVKdQOkVrfrH89CP5Zz4VhgHubN+7dxd//c9/GkYzoAIC2ngwSQIz7GrKQY1WagIQAAcDsKhpAshbVf9NVP/ua1JbcGwHEmFNwTUJATAeXKYA/KU7woTyl0VPTUDgYRFQYwB6uR1AGvlF8m6syrtnZqG5kF2VmTjE++XbFAEoHnzAy4A5utianpqAwE8DsGact3R7hGLk99nN39K/+IqVAFT9Nxq99Lv+RwwGMvEg6wXR17BLZAKCEhoAJwegRH7C33xHMsAzo6oR2EFSwcY7wqcZ4kE5CVSdgCYVbC54aQKC0kQAvMXa7Q3KRH6p3D1D5WPp7d/7SYPKKcnT/6yJBx9RAP4xVDFbpTEBgXcGQNMHspijmAZFfsm/8zvV/3d3ZiN5/uTX53tJMejss3coALdkY6+JB5UkECpjLpo7QxAA/TEgfKTWcE4BNZFfLN9T/X9Vp/qnh//PiP7P3qj1GqoT0MaDahIInWQ2oFqAhycCgY8GoGM6BTY/PG3kx+UH5gBu32MGIPrQlgiAsy9nmBOYznxJJh7MJIHQ79A3nwggAIYiUDf77CpuBuBHUf3v/Zj9hNtM/z+ETygA9Bu9QQHYHrYYAdXsVynxYJBJAt1MAO8P9aseHHhoAHrawxTzy7PzPW3kJ2SARL4nA0KR/l+wD74VAfBHGL5NAehBXyfFg7ST/E9bO9MqnMj41hoUlCIH7Di01ZkiPykDPPP7bVIMjORj9tHt1AS8EVZvUQJa4JcK8SBtI31gbWjslKIYFJSiCNS3GQBL5CdngHfJgBAFgA8IvaQAbAnD08wJzMBfHceDbFPwzzWLCYCiAA8zwaAMBkA8SYEenC3yi/+VxAGELAmM/+IGCwLCsE8B6GgPgmk8yBrJwfNiqRoERQH+mYDAoxCQ5YCL5hpA9rlZIz8lA4z+vTQJTBNB8o1rzAn09d+DxINXOQDQebEUywC/ydHIBESxrDdhYFCCIlCzZYieHSI/LocTBxCyJDBpAN4S+4DwFHMCxwzf5hcKgO682NLV7F8xKPDNA6zmaqp1ifziDJCXAKP/3pomgfTfpwD8Hf1nlxUEq6FpICAFIHNebE9nPPMBgSceIAkBO+7jlW6RX9YB8CRQmAGKE0Hyo7CC4NuheSp8m+68WKpoAoeCHTEMRADcckDYADhGfmoJMKQdIZEIa8I+pCZgLvrPOV1BMJQHAnTnxZaSpndhoFcAwCEg2FHrHPmpJcBIWBIoLAeeS4KA0FAQDOWBAPi8WMpou1AmiAAYigBACAh107lHfpkSYBICPBb/OkkEQ2NBMJQHAsDzYsmeNUB75lMpIPDeA2T7aXNEfkoJkD1wJQmM5G9qAthfmwuCbCrccF5saWzwzQcEvhcB1AeWL/LLlADDbBIoJ4JhUhA8FVoHAsDzYgvQi36VAgLfiwByEShn5CeXAL8LBQ8gb4oTEsGkIHirZh8IgM6LpV9oTRfT+uIDAr88gKYVlL8wO7V9fu4ZIBGqf2UTyPYkEQyNBUG4F0SJB42ZoGc+wBcAdB4gPQes/XYzb+QnZ4APk9silCQw9QFz/E+8IHjaMBUeGs6Lv/xPzXAmKPgABMDuAeIQcGf+yE/OAL9LVgWqSaCaCBoKgsJUuOG8mCAQxGnNoq4c7IkPCHzyAF1dCHh9d4HIL5YPZAcQvsgkgZH8EQHwVvJHTUFQTAK158UsHiRXi8FhoF8+IPDcA0Rvy9hkkcgPKgGmSeAT9dPERDAtCH5kmgoH5JEUDx6Dq4Fe+YDAo3MA2AMEk8UiP6gEGMnzbBKYSQSJTDMC5sxJYGjuH3z/I4jqxoJH5wGB5x4g2Fcw8gNLgGkSmP1BaDHwWfoBXhCs25JAczz4fuC5Dwh8PgdYGbl0qWDkB5YAtUlgkgjeSP/MC4JdexJojge/HV+BfQACYPEAFaL+FIB3i6hfKQFGcjgdCIB8wMv0A8cyBUHdQACEgBAPXlAR8MkHBL5WgSpvXrqUAHBzZ7FXpf67nAESeZItA/I3ngLwofCRTEHwgWYgAPy90pSA7CEcl6+XbfnTF+QRAKIHOHDxUqr/mzuLPiilBJgkgS+gT1YSQfIad5SCIDAVbvq94hIxXUYqIeDRmXDgTxLYSV1/rP4IgMlHhZ+TUgI0JIFpIiheIDsjFwSv2ZLAzAnXsS9TAi6MVFbEW0U9SQQDP0IAoQy4MrLvUqr/ybHiL4paAkyTwMPQp79UEsEwbg6JC4LgVLjFtB17PwGAIBAHA1IxcDMDACSBI5cEmRzIVbIM8APpY3fgJDBMukKeSR+SCoJOSWC2wh0kAESewLfe0MCzJFDQ/77Jj3iwXOzk/DulBJgmgZqV8M+URDCKDBtCcwi7RThfl0OU3nw0niHAn0TQBwBYEshCgMT7XxyZGqxe8lAtAYZJL8hz+CsyiWBaEIymxXY6J4HZPqfKiAxA0hi22QEQQoCmaAEuHhh4tV6mBGhMAkNhTlySd5KCYOCcBEKtgZVxEYCmN0FA4FkIsMIiwDfTYeqCDylbAgxDeSo8K2+JXSFyc0g3TxKYKXFFEyIcgBXPgoDAtzrwAWYCRng3aNFnlC0BpgMBH+u+aHsmEQyT5pBTeZJA9ZfrJ/qv+FYNDvwKAVInUBnoyAQoAYahMhXulAgmTuBWkCMJBIIAKQnwKAgI/AoBUidwsSHWS9ehBGhLAtXxgPSnZLngNlMviPa3Y61OrQYLAkdWxK2BXgQBgX9HwRXuBBaKJ4E/QBkgOBAAJYLqv0YLgrcuSgMB+RLBBcUBeBQE+AGAfBTMnUBQ2EvehjJAeCDA3BUiFATHL0YE7CwW4fBa0LiHxwGBbwcBkRPgxYDCTwgqAYbwQIDyE0njAaHYHDJy8SLZDfW0mIH7lgIw3lTHhD04Dgh8CwEEJzBZMARIVkGp8tjiAeBEkBUEt10kBPwv/+8XBQHvs+OAFXV1sA89ARsOAI+S5I4J5gQ+CwqFAHc1DiA7FZ6VD6XxAKEgSDwAkaDIzNupgJ0Iyi0BU4PEuMMBgBgDqhu13mRHwdeLeACwBKgdCAhN4wGpMADG6wV+wfa3rC0ouzjWhyAg8LMdkOaCpBegwPOJlwGHcAjw2PzVYCJI5M9I/9syq4RdfkHeE7DiZ2Ng4EUMmG2e5+2gO3NbSLgE6JQEhtnxgDAdCCAAjGhGho0+jjeIVsBlMRsfBQYbPhYOTwR0Jlk34HJOAG7DJUCnJNCQCJKBgKvEA2hGhk0AXOft4R3tdMDGjokHfsSAzWznNBsIuFnN935oSoBOSaAhEYx6QYgHAPbJW2xclTmAbz9ag6YDPKgFegAAOBLSn/6GTwPkAkBTAgxNAwGhfk48lAYCRszro0AAuAP4CLgDQawFbkYAdHXAJEniI2E7cwCgKwGGuqlwnQ+Yg66JC8zro6BfcZlPCUKMH/UiDQi8SAJ6oH1kA+E3a+uQARL52J4EahNBPhBgXh8FSI05gC9BL9fzIg0I/DoLlqaC23wicPASYKidCg/t4wFhvBzSvD4KfLosAGiDuw/8OBEO/CsEp1cr7OROIF8GeBj+5/QDAdZEMJkKN++Tz8i/zAEcS7qCMvfItTc7AGAhOK2S8DDgWp5VULAD0E2FOyWCj5KpcNs+edkBsOGwQLcC04s0IPAhCdBHyCwM2D1gCdAwFR7a58TFgQD7PnlBeADwHxboZrdgr/qQBgS+TQXKE/TcCfzmngHe1fy1WxIIzYlLU+EO++QTu8EcwHXtykAvWgICL5OAtB1st6sTMJQAQ9NUuMN4gDQVbt8nHzsAngHq18Z6kQZ4AUDHsEyR54Jh3lVQYY6BAGg8QJgTlwcCrPvkZQeQRrod+DRgcwOgOQnopRnSNb4fYoASoHkq3J4IygMBtn3yXH5hGWA1/S17htOATQwAmAWKR6W/MQJ+LFwCzJUEAuMB6kDAR9D6KFV4CfA/qZ3Lbgxsbm4A0jJANjySZkJ2OzgBYwZongoPbeMBmalwh4Lg0/fZ1lhlOsTD46DAy6MgqWe6Zi8IGkuAocNAQGiYE89MhUPro+ASYM28BK3lQR7oJwDyk/nRVhC8a84ALVPhoWVOPDsVbtonL5YAl3NwvtkAMDUEyov0yCdbckE+B6Z3AOapcEsiCE2FG/bJiyVAmXPI0yEA4GFwQ3WO5oLg9+YMMF8SmJkTZ0ngU2hkuG/OANVQpwHEuhteCQq8rAOp4fE1U0HwB6sDsEyFh8bxAHAqXLtPPs0AP6+pyY6XlSAPAIAPg+X86F29E4BWQYW5psJDzXjAG+kNAQ+gaTFNQZCXAH9xOPTe9ACwB1MB60Byw+x72lzwA6sDsE2FGxNB3Q0B+oKg4ADk37MHgr7BjcGBj4VAoGVeWxD8zlICzJ8EyuMBuhsCquA++bQEWMtaukUfS4E+ANB0Waa8Ey4IPrSUAJ0HAjRz4so1cWFo3ieflAD/dVmG3dzMAAjRMXBQDkTHP4FOwFYCdB4I0HSFsBsCwBIEtE8+rPESoGZRjLYlZDMD4FggeQoVBOFVUGGBgQDNeMDP+uWQYEGQ3RXwfs3tPgQPasEbDUCOEilQELSXAN2mwvWJoOmGgOw+eaEECFQ8WxDpmxqAnDXyTEGw/rs1A3SbCteOB2iviYMLgkIJ0BWAjS4FegDAqq0SnIhaELSXAB2nwkPdeIDhmrjol1D3yUsZYBaAJgLg1BKqBUApCALb4LUhwOO8PyBLBP80rwZT9smLJUAnAFYRAB0AsGv8TXQCDiXAgklgGI8H3LAth5QKgrwE+ChP3wMCcHr6aI5GCbEg+JWTAyiSBCZBwMRV2zVxbwsFQcABIAAOAJgOA9X0mDuB3Y4lwIJJYJIIjlw9Z7khQNgnH0glQAiAhmk+dHMB4HYaDBTIkoLgXYcSYJhvICBUOwNv0N2A5tVgyT55pQQo7gjw+TzYSwBMFVJeELzmUgIM3afCQR+wgwLwyPx5fJ88kAGqza8IgON9kRVjiZzlgh+4lABD96lwMBGcoMshLYOAvDmElYC/fJr31AsBmO7lm5umBcGDTiXAMMdUeAiMB5DtoBft+6Fpc8j4BQrAP/mm4Nc2viGgfABEzSEH3TLAvAMBSiK4N1oN53BDAHECt8gi0KQJxB2AHgJQAADiBD5wywDDHFPhQBAwEQFwddn+y/Qa4xSAL0ME4HUAcO2gWwkw11Q4ICN0OaTDJ86wbfCf1xCA1wIALwEedNkbUTQJjCTaD31xxOET/+Hb4KsIwGsBgG+DdxgZzjMVnpHlqxEAO16GLoPAkf7BaTEEYN0B4CXAgy6bQ54UKwOGrB00AuDGdqdVUASAW+D6KATACsBaPgDuJvq3jQznnArPeAC6HlhdGKYbBCYGAFwfhWngOlcC67EDoPL0lSWB0VQ48QETmWvkNHNg72vWR2EhaH3PAngTyO/XbrrsEMw1Fa5INBVOQgDw9oAw0wX4pW5aDEvBA40GZh7L4bgE+KPL+qg7AySBbD905j5xVf7zOS8BatZHWQ6DTm9SAIz9AA19P4CwCupdh/VRxXpBqDyNDoKvjmTuE4cdwC/a9VHG42DsB8jZESR1AbLmkPfCdZsKl4ROhV/dkb1PXD8IDE6LYUPIegIgrYKyr48aJAlkU+E34GvkQnAODFwfJfS/IwCDdgUrq6B+szmBxwMlgdFUuOYaubQEyFZBhWKHoDwthk2h+ecCtACoF0L+ZF4flXsqXFQtGwhgc+JVswP42bQ+CucC1m8wJLMK6ulnxs0huafCMzcEXNNeIyetggoN02IIQIHZQBgAoAvwR+MOwUGSwHggQHeNXAjOgQHro2xbojb7bGDb9mLUjdvgdxsKgvUBksBkKhy+T1w3B5adFhMLHjgcqqmPADdGAQUyeBu8oSB4r3gvSDoVvkXvA36GxgDUgqDbeDguiLAviNCsgjKsj9o6QBKYLIfU3SculABD0/ooXBBRaEXMQgYA7RyYviD4uLgHEKbCt2sSQaEEKItcEBRXxKzhihjHe2OBJVH6LkBdQbDwQECaBIa6a+R0c2BhZn0ULokqel2A/GYYtsHrCoK/Fh0IkFeDaRLBX8A5MLEg2CpFP4i/iyKl4Mi4CkqzPmpr4YEAeTXYH1Ai+A88BxZm9skbDwMRANdVseY5MLAgOHgS+EB/n/hTtQQY6tZHGc+CNvOq2FwbIizb4MH1UccHTgKX9feJB8oqqFC7PgqXRa9DLdh4IaSuILguSWB6jdzflhKgLGlBENfFOwBgKQXat8FDBcFBBgLk1WCZa+S0GWC2ICh6ulW8MKLYlTHmCyE1BcFBksBl+YaATCKozwAzBUG8MqZgKVCoBP3gMgicKQg+GTgJTBx8VblGDloFFYZwQXDa91XB/l8bt+Q2CKw2h7wYIAncpqwGk6+Rk7bB64UXBOfw2rgBL450XAWl7JMfcCBAXg0mJ4IODkAsCKaODi+OLHJ1rOsqKKUgOMBUuHBXeAhcI2coAYbQDsEWXh07yOXRh11XQSkFwUEHAuTVYMI1csumEiBYEDyFl0cPcH286yootSC4fklgKF0jx7fBuz01VhDszOD18UYAwJYQ3hFwxHYhpCYXHGgqPHtNXHqNHN8G/9TpO/GCYF/TDeBDP9CGApAek2TzQJYGjNlKgGBBcOd6DATUwGvkrCVAsCA4DScBzYWN7wfaYAD0B6XRprh2+0wOBxCKzSGfDjwQEGZvD3jLpQQIFgTnwUvjOj5kgRsOgCYNoEWyrxxKgJAT2P1wPZNA4T5x1wxQLQj2wBjQiyTABwCgA+EoCjzCS4A5ng7PBY8MOBUu3RWeJoKBSwlQ/hV5QfAd6CjoqA9JwAYCYD4o60/zAOC7XE+HFQRHB0gCJ8FLgqJEcD+0Dd7GeJdXAwyZzobGgD4AAPdKLPAuwJwXakXngpdmzw82FX7uZ+AauRsjF3I6ABrnsoLgrdaal0dBGw2A/jSgwx3AlZyPJ3ICB89HABwPi/eC/BVmN0eP0F2g39ZyIs6dwNsdw0nAZgXA1Bi8g+l/LPf7QQqCh85HBBR7qD8Dd4XT8YD9bBnsv7ltHB8ZbvjYEuwDAHCVZGWU6v9IgRDpp89mCQDnXwxQBvwz+/HtbBdoUOAXZE6g2XSYftmkAADF4EOXKQDtIs/nYKT/86PhgAMBsrxPAXi/yC/YhgHoe5EEbCQAhmLwjssUgLFCZZIjFICDO8PBBgJCeQ6MAjBWKMjpMgCaUCF4o5OAjQcAKgavXKYAHCkWJN+JXMCsZX1UaB8IkLsAI/1PbC8GeI/qXyYgmQvczACkUaDUE7IyepkSUMxEkl6QyAOY10fZpsLD7BzYhQsjN27Ui1W6bmUBYN0gGx4DegBAthY4cZkCMFYsSIqmwokHsO4QNE6Fh9k5sAsX3rIujdQFuV0GQNO3ZgBvAJBqgRWq/8sTBfNkOhBw/pJ1h2Do1AuSzoFdOGpeGGasc9xqqgR0EQBNEMAcwOXRSsEoiU6Fj5rXR7n3gqRdgOPmhWHmGJdbgJSA5oIXdcCNBgA6EWYO4HJFmg9zf0ZsIOBj8/qoXEkgXwU1ppkTd7FvraYKgB9nwX4AIJeCDnAHoEyHOH9PPhVuXh+VJwnkXYDL5oVh5l+OlDkUAjwpA/kCQBoEcAdwSBwOyGUl44EANi1282k4YBKYroKSxwOc/VvcDSQT4EsIsLEAAAeC3AGMHmC94bkfUjoQ4LRPXj8VHmZWQUFz4o4eoJHqv+lXCLDRAGSCgEOXuYzuKBQEpFPh15IOwUJT4dlVUFty+QDZujWbMgDehABeACAGATsuJzI6MZ0/ERSmwl32yduSQLELsC6MB+RKAlu9pgqANyGALwCkQcBESgApBqeJoONjEgcC7PvkrUmg1AWYmRN3+c3a0+80Gqr+/QkBNhgAqBKwMjGaEnDmyBe5HpM0EHDN5VIR40CAPAfGfMCVXABMv90A9N/wJgTYcACg44CVA6MJABECOXyAPBX+Wy4n8CAzEKCsgnpDmRO3e4Dpt/lRsFIF6HlyEOALANkJwQOHEgBIX+Bx5wdFk8BPQ8d98qF5ICCzCso9EaS/13SPNwNlDgKOeuMBvAEg0xNQOZQSQBBwe1DqVPjTHAXB7EBAZhs8Hw9w+r2qrVsNUf/aXoDNDYBULlHa5kgwcCaV76453xV+2HWffGicCs/Ogb10TgSr3UT9QC9Iw5NeAC8AMC1TXpkQCDjz8TWHXhB1IGC30wWTUBIIbYN3TATn+g1RnJZhb3oAwOmpZuv+BwIC39/Nf1e4c0FQTQKhObBnLongqXcE5Xf60G/lTwiw4QCYfAB7V74+IiDw1eEw5zVxrrngTiUJfATNgaVz4lo59rag/l4LGnureOQBPADA5APYsqAvJAR+yHlNnGMuqEyFw6ugkjlx3S8z3RHU/87pNjTy4JUH8AgAjQ+g1vKKiMDv39VzXRPnVhBUkkDNILDxGjkh8CfDYO+cMv9OCIAIgG5PANsYGJnL41+JKcFt/TVxT1z3yZuSQN0qqA/1iWBVcv2tOf4rwVbNGw+w8QBIxUDgaaWvyw9fWeJB3TVxOx2cgDwVrl0FpU0ET4mBf+90Vb8bzC8P4A0AWh/Qjaum5Hnd/V4MBu46XxPnUBD8U0wCDaug4GvkpMjvnVPMplGku557AG8AMPqAtGq29L0+HtTfEPD0pq0gKE+FG1ZBAdfI1ZOSL1X/nFjdzN4T5JkH8AAASx6gvjC3v/tdEw+yJPC46z75UDsVbloFlekKqUmRX6sanwPpTBo5B/DJA3gFAPzA3pkW3hh6CccPcDxoWg1mKwiKU+HGVVDKNXJy5DddUyyaA9AIgM0HQK2BYDxovCbOUhCk+p90WQYsJoJS5Pf2MbgZ0G8P4AMA0iM7OgUs1FRMQCTZePCh8YYAc0FwWRgIsGyDT28PUCI/AGdgO6gvU+F+AgBuC4pXh6vP7PbHcjxouSscLgiS+0jq8kDAP5ZVUHw8QI38QJoBe9b06CTYGwDE84DsykA5ExQfmhwPjlpuCJD3yVPVJ/LnVSLn3LbB066Q/Wrkp/ozTQ7IeoE88gCeAGDcGEcnRDRvjRAM0MVAW932ySear0XNZvVrkf6vBmATSEb+Pnuj0mwqkR9ozbLbYX3qBvUSgLbWbM5DJkBEYJTuBXnusk8+UX0sjy5GAPxFvrXDNviFStTgo0R+WQMwb3JnVQQAaqHU7Y5XikHqF7N4kAFw5oO71n3ytVT7VSq1yYtEzkUf/9a2DZ5Efs0EgCTyg1FeNIaAfngAXwAQn1vDkAnCL85tggBdDTZqPC+ukVzw0qVLP3HdLyWyLQJgknyQOYAva9rT3l7S4ydFfq4GoLHgWQjoCwChuXgy1bc9uNsfn48BMJwX/xjp/9Kl38g/xjR/hcpYpP+LAXEFF0zb4JOaHwVgtWoDGTJlvoWA/gBgrgZWLCYgOgmMALhsPi8Od1MALiXKv05l8s03CQDXl5bZLkj4kQg1P6L+/WBrqGwAGt5XAb0DQJsJxsUg/aOjAwGzlvPieu0mBeDgElV++wsm294ksu3KEt0FSG4ErltOeyv7NeMBNgPQg0paCEAmDATS54YpEUgHAqT6YCYeJLH/MlH/vn37JmPtf03km0j/b05eD9gy0OV65vsrNT/dnHgeA+CLB/AHAHMmaEkE0mvibuvPi2nu926k/337xqjyv6EySQEY+2ZkhOyDvhDQ64oNp736OXFbCtDxLwT0B4BQfHuAYpDFBGxNe0F058VU/9WlgxSAfUT7Y/eZjFAAIv0TAt5fqkoEZE97tXPithRALAJ5YwA8AsCcCUomIEuAPBAAnRdz/S/tpPp/c/L+/bGJPXv+S2TPnj1vvjnC5ML1JZEA4LQ31M2J1xMvpjEADR8NgG8A8CI6cCZIHKg+gspcE5c9L6b6iWL/MaJ+IhNU+bHs4QR8c+XK0lJMmHzaezo0jwdIcSxkAEgR6LQhjNnsAMgmoAmfCMxrTADQCyKfFx9O9H/9C+rzJfUnCEx+cZ0AsERNwOkedNob6ubE62IYC50CNL00AN4BoC8GsUNB+Am+gAYC5HjwOHUARP9ffAOonyJADMAXlIAqGe0WJzz6c9CJ4Fswv5pjQN4M7JsB8AgAaxTQWdDFgbq7wqV48MwRpv+vv5kE9U8ICL75mhJwvas77dXOicsRYKcsEYCHAHAT0NeYADAOfK69Jk7sH7w8euSLNtH//Yn/amTiPiGgPX+00tCd9oaa8QApAoSyGL720jsD4BMAVhPACsJAHGi8KzxG4PIokQ/uG/RPCQjGK0SSCQ/NN1UTQQFesAbErkL10AB4CAA3AeBbtAAfCczOGq+Ju3skAWD00CGD/gkBBw6sJABkT3tDzZw4/8l5BAhYr6mupwbAKwCs5cA4FVScwD3rXeFLRxL9H/qvUQ4wAqLIb8bwDeVEMHUAuhSw46sB8BEAWgsATwSmemA90HpXOPm+S0c4ACfdADh6xagoeU5cjgB7YPhiPMpAABw76mgo1VadwGPbXeHRt126csTBAEQEEACOXlmyKEocD0gdgOYU0NTViADkKqdDToANBHxsA2DpyhdHRl0AqBxtX1myAcDmxKtuDqDZ8tYAeAaAXE5Zm9LWA9mzZA/TMhCQAkBywCN7bADsOUoyQTsAaSLI9c+phUKXuBHIRwPgJwD61iDmBORM4I7trvDoHKjKioD37QDcZ+VA26XVyZy4PQNoWvuZEADYBCxOGZ0Ae5x1SxLIv2cEACkC/dcqUTGIAmDW1TPeFZLqX+cAvDYAngIQv09ARYXvDEnDgHvJDQEOAIzZARhzA4B3hQgBgKYGTIvA89qDbARAXw0CZwSSclAcBmy1JYGvBgA+Jy4HAODPuxodA5/yMgL0FYC0qt7ROYE0F3xs8wACAGMTdgAm3ADgiaCYAYKlC3pFaNtbA+AfAPZUMHICaRhwxTgV/uosQOwDxACgM1WuFNBPAEIprQaNatQeFhNw3JoEvpogkM+JfxLrH24D46eAvkaAngIgxYHgW7XKwwDyWG1T4VIaeP+EgwsYS9JAs75YV0gSAC6sgtZqweMU0FMAhDhQ5wRoawA1rHPWJDAtBI2dOHnSXgfYsePEmL0QFMbXyM1xZwUHAE3dCTYC4BwHgk6gwQPBGVYGvFe3fsN7J3bt2nXy5EkbACd3ENn790urvuosCDg2w35MqAlAPLuoIQAF40DQCbBAkDzaExQAy7OtL/06en7XLkqADYAdVPbufWusWrfcCUIBeMb1D/+UvjsATwEQ64EaJ0APBUh0xQYCjE+3fu8OnRxlAOyxegCq/717z954tqVu/AnZeAALAKGjS+oAvI4AvQbA4gRoPej0WLQXZvZXg319g3YLxADsOnnIzQAQACLt/n3F8AN+wnzAaV0FqAQOwFcAXJxAs0sIOEE3A73UPeCHv346y4QBMHri/n1zS9j9se1M/xSAqNSz5Q0doOxEcDv5AcEA0NDGjAC4mwBtJkBTgcfRq/24Cr5i9ed3ZhOJPu3EF7QUsMd4FEiKAF9vv5Hon6pYdQXxCTAtBr6l039TObRAANbbCTRaY3QvyIk5gIDDW2clOXEvHgvQE0D1T0dDtjy7IRBAXMFLQP9z7ERwAU4ApJ0G3urfWwDkPqtpMMaa6mynAIzNJATwx/zwyWNJ+3eO15PBoK/HxnSDIWNjX8ejQbXqlu0iAmf/+LAqTBmzH+0YMxAV8IfrQd1rCEBeExCHAfBLtivS/2zymBkB9ecvJO2/+LWezAYzAmAbsOe+oP/oO71x/A+JgbciVyDo/1Sbfng/bJ6yrUsIQNEwQJcLrjAPMH9KIODeHUn7j588TL8bGw6lw0HZ4dAJbv+F8eAwvPK37AqebRH0f2qeBgFnrRmgx/r3GACl1wYKtA5QALafTgi4pzj+rYeV9RDEBDAC1GRg4j7Tv2AAuGTDgWqs/9PMS1SMk6xeOwCvARByQRoIZgnYwUIAFmzPvDyecfzqgphqbAMIAmOpFdgzMUbUH7//1cySmC1vyeHA9i0zLD35ROMDmrwCMOO9/r0HIA0DgCZhGgLsiorC8/NjJzKOP3smmBBAjACxAgQCItGqmG+i11+j/0iqHyrhwCfzp6MC8H4YgMXpcgQAngOgVAMy9SAWAuxotBa2n6C1vlj7o0+uaL/bEncDbEfUGBHy/76m6qfLIbQae6mEA9s/IfnfftAHsApQCQIA3wGQwoDs1C3zAAdWdlBLkBBw5zh8lF9PCWAIsC1xVPlU/an+NV+tZIY39lcqEACNNAD03QH4D4BUDVBSgZNU6Yn2KQGjv9K3DlQiXxK+xBGI90QSacvqr2vgqVXnPpHDgf1AEKD0LCIA6xQGZLouV86r8vjEfJwPmgio8k2x1xO5QtVv13+E4rycFWQSwXiPRRkCAP8BSMMAFgj2M0lg+vKfGJtvszYxIwK1mrIrmimfqb9mVj/9OdqnP9muAFBREgDerlYC/XsPgErAmhoCcDm5IzK85M0TEIBe5uSuCGFbfKJ901fE6if6p+H/fskTZBOAkujffwDEQHBeOhVInf+uHSsk9CLHw7wiIBoBIBuML4yIPouonn8u++y6BphE/9HPsNAl4WhFYGC/dAIwX5YAsCwAaAg4KWifGd+FjBHQIiBdGZNo36p++vovxDWpyn4VAFX/CMA6BoJxOaAnxgA7Dgjud5G6gdQIaBCQroxKlQ9+XnKxDH/9I/O/KISijIE4BlhbEPVfBgNQBgAkAk4LFzKv7Ihf/rRVVDECVY1prwOicRVV5fXPtH9W9leAgZWS6L8UAGQIAEdwuBsgRoC+hRICWQbqCgNhHQ4UUvVT/zPd6je1/3gZ9V8OAHIQMNWhsSDzAyICNeg9135ICBMj9cfWf6HbmRou/ZcEALEgZCOARgKxH+AIVFVfz64hZzqq8z+osUFVVf90a605bPovCwAqAdMGAqYaq1oEBAg0Il8pyNTfZurvNwz/aJT/R/qfKZf+SwSASoDhZWxyPxAhEMUCnIFqzUxBTVZ+dY75fqZ+o/UnZmdaif8RgFdFQFwPONo0KqQlIgAwoBVB+yz0Y7H/ovGfO1pW/ZcHgCwBfZNKphr9CAEWDsoMaDFI/z7WPvf9C2brH9f/y6j/EgGQJaBr1MpUYzFGgJsBwoAAgU7mqPap7Y/Vv2j5h7rl1X+ZAMgS0OoZFcMdQeQJKANWCOZS5VPtc/U3zf9Kr1Vi/ZcKAJmANk0HLcpp9royAxQCioFAAvsT+5tTsva7Pdu/QNO/dln1Xy4ARAJmWHTetegnyggoAhEDMQQxBrLwv6LKj7Qfqb9j+/bU/J+O+xDKp/+SASATwNxAZ8omDW4GOATz7RgDRdrt+UT59OVvWL91pyUeQZdQ/2UDQKwKx4fza80pBwZWWwIElIOIBCbRf/MPc+W3Vh20T0//VP2X7XmWDoBQ6M/haVrfgYAoHOi3YghSDhKJP06U3+r33L7janzqkPYghQjA6ySABwItl7c10lijs9jvEgoSDERZILrv9hc7jabbd2u0RPdfUv2XEQAgELBmA3JY2CMYEA5E6RLV9zp5vsviQtndf2kBUAhg2UBnKq80ya2AnV6vQ+4Ibeb+4k5X6jwprf7LCUCoNOrOi416r0Ma/UwDakn1X1IApEmNpFdv7TUh0FyTew9rJdZ/WQGQjUDcr1XADxSQyPrzrrOyv/5lBiCE5jVegx+Ams9LrP8SAxBmRzYiBHqvFIFmb0HuPK+VXP9lBiBjBF55KJA6/yF5/csOQAgO7kzbzu+Lhv5it+lwvP6lB0CZ3Ezadxf6jVeS+SXWf0he//IDkDUCMQLdzjp6AtZlmrH+Q6D/8gMAI0CTwvWKB0lXCe8pGTr1DwUAYWaIL4oFWDAwuBlodrjrj3vMq0Ol/6EAAESAeQIyzTEIA80OnTVMG0uHTf3DAkBmklvwBNOux/tQA8G0aPuNM+cIgIcIxL2d5Eq3vAw0e6txJ2HcVT6M6h8iABI/UJNGO1IGXHs9WNfItKp9edZ8eJ7aEAGgIBCbgZQB2ulpavuIWkWk/tF4mkAcMB0q9Q8ZAIojSCe8xHZf2vvV7XZX+0cXFxd7PfI//f4q+UDaKcabh5WZsmEz/kMJgLgHLmVAhCBt/4Qk7hgWBonkl78+bM9r6AAQEMgwQCmYP22Q+XlxgGgus15i+J7WEAKQWfGTQDCTjoDQWQBR2um4iKR83ZIhBKBcZiAd+xU4UGUmGRxUBsmHVftDDIC0ErQmDwDPzWhEmhhNtgjUh1j9wwyAwkANGAUXRfnr2qbQ/rADkN0LW3UQ8/ZYBKCkDNQ122A0e2Pqm0L7mwMAcTVszUHqm0b5mwgAdUGwSfGbRvebDgD9nuhNqfrNCgAKAoCCAKAgACgIAAoCgACgIAAoCAAKAoCCAKAgACgIAAoCgIIAoCAAKAgACgKAggCgIAAoCAAKAoCCAKAgACgIAAoCgIIAoCAAKAgACgKAggCgIAAoCAAKAoCCAKAgACgIAAoCgIIAoCAAKAgACgKAggCgIAAoCAAKAoCCAKAgACgIAAoCgIIAoCAAKAgACgKAggCgIAAoCAAKAoCCAKAgACgIAAoCgIIAoCAAKAgACgKAggCgIAAoCAAKAoCCAKAgACgIAAoCgIIAoCAAKAgACgKAggCgIAAodvk/dR4bWIgo/GMAAAAASUVORK5CYII=';
 // опис для встановлення на телефон створюється прямо тут — окремі файли не потрібні
@@ -161,7 +169,14 @@ const ICON512 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAMAAADDp
       { src: ICON512, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
     ]
   };
-  document.getElementById('manifestLink').href = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/manifest+json' }));
+  const link = document.getElementById('manifestLink');
+  const blobUrl = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/manifest+json' }));
+  if (/\.github\.io$/i.test(location.hostname)) {
+    // на GitHub Pages — справжні файли поруч (їх кладе сюди кнопка «Зберегти на GitHub»)
+    link.href = 'manifest.webmanifest';
+    fetch('manifest.webmanifest', { cache: 'no-store' }).then(r => { if (!r.ok) link.href = blobUrl; }).catch(() => { link.href = blobUrl; });
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  } else link.href = blobUrl;
 })();
 const $ = id => document.getElementById(id);
 const cv = $('c'), ctx = cv.getContext('2d');
@@ -384,8 +399,9 @@ function legG(tr, k) {
   const s = d[0] * bx + d[1] * by;
   return { g: d[0] * by - d[1] * bx, ok: s > 1e-3 && s < tr.Ls[k] - 1e-3 };
 }
-function solvePaths(n) {
-  const k = +$('maxb').value;
+let extraPaths = 0;
+// усі дзеркальні шляхи A → (рівно k відбиттів) → B
+function solveK(k) {
   const N = Math.round((drag ? 0.3 : 1) * Math.min(16000, 3000 + 650 * k)), step = TAU / N;
   const list = [];
   const add = th => {
@@ -411,19 +427,35 @@ function solvePaths(n) {
     }
     if (r && Math.abs(r.g) < 3e-5) add(mid);
   }
-  foundPaths = list.length;
-  const chosen = [];
-  if (list.length <= n) chosen.push(...list);
-  else {
-    // рівномірно за кутом вильоту, а не за номером у списку
-    const used = new Uint8Array(list.length);
-    for (let j = 0; j < n; j++) {
-      const target = (j + 0.5) / n * TAU; let bi = -1, bd = Infinity;
-      for (let i = 0; i < list.length; i++) { if (used[i]) continue; let d = Math.abs(list[i].th - target); d = Math.min(d, TAU - d); if (d < bd) { bd = d; bi = i; } }
-      used[bi] = 1; chosen.push(list[bi]);
-    }
-    chosen.sort((a, b) => a.th - b.th);
+  return list;
+}
+// m шляхів зі списку — рівномірно за кутом вильоту
+function pickEven(list, m) {
+  if (list.length <= m) return list.slice();
+  const used = new Uint8Array(list.length), out = [];
+  for (let j = 0; j < m; j++) {
+    const target = (j + 0.5) / m * TAU; let bi = -1, bd = Infinity;
+    for (let i = 0; i < list.length; i++) { if (used[i]) continue; let d = Math.abs(list[i].th - target); d = Math.min(d, TAU - d); if (d < bd) { bd = d; bi = i; } }
+    used[bi] = 1; out.push(list[bi]);
   }
+  return out;
+}
+function solvePaths(n) {
+  const k0 = +$('maxb').value, t0 = performance.now(), budget = drag ? 250 : 3000;
+  const main = solveK(k0);
+  foundPaths = main.length;
+  const chosen = pickEven(main, n);
+  // не вистачає шляхів з рівно k відбиттями — добираємо з найближчих k, щоб кульок було стільки, скільки на повзунку
+  if (chosen.length < n) {
+    const order = [];
+    for (let d = 1; d < 20; d++) { if (k0 + d <= 20) order.push(k0 + d); if (k0 - d >= 1) order.push(k0 - d); }
+    for (const k of order) {
+      if (chosen.length >= n || performance.now() - t0 > budget) break;
+      chosen.push(...pickEven(solveK(k), n - chosen.length));
+    }
+  }
+  extraPaths = chosen.length - Math.min(main.length, n);
+  chosen.sort((a, b) => a.th - b.th);
   return chosen;
 }
 function prepPath(b, V) {
@@ -693,7 +725,7 @@ function draw(t, now) {
   ctx.textAlign = 'left'; ctx.fillText(a, x0, yy); ctx.fillStyle = '#ffd84a'; ctx.fillText(bn, x0 + wa, yy);
   ctx.restore();
   ctx.textAlign = 'center'; ctx.font = `500 ${fs * 0.55}px system-ui`; ctx.fillStyle = 'rgba(200,220,255,.55)';
-  ctx.fillText(shape.name + (mode() === 'exact' ? `  ·  знайдено шляхів: ${foundPaths}` : ''), W / 2, yy + fs * 0.85);
+  ctx.fillText(shape.name + (mode() === 'exact' ? `  ·  шляхів з ${$('maxb').value} відб.: ${foundPaths}` + (extraPaths ? `  ·  +${extraPaths} з інш. відб.` : '') : ''), W / 2, yy + fs * 0.85);
   if (mode() === 'exact' && !balls.length) {
     ctx.fillStyle = 'rgba(255,200,120,.9)'; ctx.font = `600 ${fs * 0.6}px system-ui`;
     ctx.fillText('Немає шляхів — змініть точки або відбиття', W / 2, CY);
@@ -834,7 +866,7 @@ function smoothPts(pts, closed, passes = 4) {
   return p;
 }
 function pathLen(p) { let L = 0; for (let i = 1; i < p.length; i++) L += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return L; }
-let customN = 0, history = [];
+let customN = 0, undoHist = [];
 function afterSceneChange() {
   rebuildScene();
   if (!okPoint(A, null, 0.03) || !okPoint(B, null, 0.03)) presetPoints();
@@ -846,10 +878,10 @@ function commitStroke() {
   if (!st || st.length < 2) return;
   if (tool === 'line') {
     if (Math.hypot(st[1][0] - st[0][0], st[1][1] - st[0][1]) < 0.04) return;
-    walls.push({ pts: [st[0], st[1]], closed: false }); history.push({ t: 'wall' });
+    walls.push({ pts: [st[0], st[1]], closed: false }); undoHist.push({ t: 'wall' });
   } else if (tool === 'curve') {
     if (pathLen(st) < 0.06) return;
-    walls.push({ pts: smoothPts(resample(st, false), false), closed: false }); history.push({ t: 'wall' });
+    walls.push({ pts: smoothPts(resample(st, false), false), closed: false }); undoHist.push({ t: 'wall' });
   } else {
     if (pathLen(st) < 0.25) return;
     let pts = smoothPts(resample(st, true), true);
@@ -857,20 +889,20 @@ function commitStroke() {
     if (tool === 'shape') {
       pts = normalize(pts);
       customN++;
-      history.push({ t: 'shape', prev: si });
+      undoHist.push({ t: 'shape', prev: si });
       SHAPES.push({ name: 'Моя фігура ' + customN, pts, custom: true });
       fillShapeList();
       setShape(SHAPES.length - 1); presetPoints(); build(); setTool('points');
       return;
     }
-    walls.push({ pts, closed: true }); history.push({ t: 'wall' });
+    walls.push({ pts, closed: true }); undoHist.push({ t: 'wall' });
   }
   afterSceneChange();
 }
 // крок назад: прибирає останнє намальоване (лінію, криву, перешкоду або свою фігуру)
 function undo() {
   stroke = null;
-  const h = history.pop();
+  const h = undoHist.pop();
   if (!h) { toast('Немає що скасовувати'); return; }
   if (h.t === 'wall') { walls.pop(); afterSceneChange(); }
   else {
@@ -885,9 +917,9 @@ function undo() {
 function clearAll() {
   stroke = null;
   if (!walls.length && !SHAPES.some(x => x.custom)) { toast('Немає що очищати'); return; }
-  const firstShape = history.find(h => h.t === 'shape');
+  const firstShape = undoHist.find(h => h.t === 'shape');
   const wasCustom = shape.custom;
-  walls = []; history = []; customN = 0;
+  walls = []; undoHist = []; customN = 0;
   for (let i = SHAPES.length - 1; i >= 0; i--) if (SHAPES[i].custom) SHAPES.splice(i, 1);
   if (wasCustom) { setShape(firstShape ? Math.min(firstShape.prev, SHAPES.length - 1) : 0); presetPoints(); }
   else setShape(Math.min(si, SHAPES.length - 1));
@@ -950,7 +982,9 @@ $('fabImg').src = ICON192;
 $('fab').onclick = () => $('installBtn').onclick();
 if (isStandalone()) $('fab').style.display = 'none';
 const onPages = isOnline && /\.github\.io$/i.test(location.hostname);
+const inAppBrowser = /Telegram|WhatsApp|FBAN|FBAV|Instagram|Viber|GitHub|; wv\)/i.test(navigator.userAgent);
 function installInstructions() {
+  if (inAppBrowser) { modal('<h3>📲 Відкрийте в Chrome</h3><p>Зараз сторінка відкрита всередині іншого застосунку (Telegram, WhatsApp, GitHub…). Звідти встановити не можна.</p><p>Натисніть меню <b>⋮</b> → <b>«Відкрити в браузері»</b> / <b>«Відкрити в Chrome»</b>, і там натисніть «Встановити» ще раз.</p>'); return; }
   if (isIOS) modal('<h3>📲 Встановити на iPhone</h3><p>1. Відкрийте цю сторінку в <b>Safari</b>.</p><p>2. Натисніть кнопку <b>Поділитися</b> (квадрат зі стрілкою вгору).</p><p>3. Виберіть <b>«На початковий екран»</b> → <b>«Додати»</b>.</p>');
   else modal('<h3>📲 Встановити на телефон</h3><p>1. Відкрийте цю сторінку в <b>Chrome</b> (якщо відкрилась у Telegram чи WhatsApp — меню ⋮ → «Відкрити в браузері»).</p><p>2. Натисніть меню <b>⋮</b> угорі праворуч.</p><p>3. Виберіть <b>«Встановити застосунок»</b> або <b>«Додати на головний екран»</b>.</p>');
 }
@@ -962,97 +996,200 @@ $('installBtn').onclick = async () => {
 
 /* ---------- публікація цього файлу на GitHub Pages прямо з телефону ---------- */
 const GH_DEFAULT = { owner: '86alieksandrkozlov86-create', repo: 'reflection-points' };
-function ghSaved() { try { return Object.assign({}, GH_DEFAULT, JSON.parse(localStorage.getItem('ghTarget') || '{}')); } catch (e) { return GH_DEFAULT; } }
+const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} } };
+function ghSaved() { try { return Object.assign({}, GH_DEFAULT, JSON.parse(ls.get('ghTarget') || '{}')); } catch (e) { return GH_DEFAULT; } }
+const siteOf = g => `https://${g.owner.toLowerCase()}.github.io/${g.repo}/`;
+const buildOf = html => { const m = /const APP_BUILD = (\d+);/.exec(html || ''); return m ? +m[1] : 0; };
 function publishDialog() {
-  const g = ghSaved();
+  const g = ghSaved(), saved = ls.get('ghToken');
   modal(`<h3>📲 На головний екран</h3>
-    <p>Щоб встановити застосунок, його треба один раз зберегти на ваш GitHub. Файл зробить це сам.</p>
+    <p>Щоб встановити застосунок, його треба зберегти на ваш GitHub. Файл зробить це сам.</p>
     <label class="fld">Логін GitHub</label><input class="inp" id="ghOwner" value="${g.owner}" autocapitalize="off" autocomplete="off" spellcheck="false">
     <label class="fld">Репозиторій</label><input class="inp" id="ghRepo" value="${g.repo}" autocapitalize="off" autocomplete="off" spellcheck="false">
     <label class="fld">Токен GitHub</label>
     <a class="btnLink" href="https://github.com/settings/tokens/new?scopes=repo&description=Tochky-peretynu" target="_blank" rel="noopener">🔑 1. Згенерувати токен на GitHub</a>
     <p style="font-size:12px;opacity:.75">Відкриється GitHub: прокрутіть донизу → <b>Generate token</b> → скопіюйте код (починається з <b>ghp_</b>) і поверніться сюди.</p>
-    <input class="inp" id="ghToken" type="password" placeholder="2. Вставте токен сюди: ghp_..." autocapitalize="off" autocomplete="off" spellcheck="false">
+    <input class="inp" id="ghToken" type="password" placeholder="${saved ? 'Токен збережено на цьому телефоні' : '2. Вставте токен сюди: ghp_...'}" autocapitalize="off" autocomplete="off" spellcheck="false">
+    <label class="chkl"><input type="checkbox" id="ghRemember" ${saved || !ls.get('ghAsked') ? 'checked' : ''}> <span>Запам'ятати токен на цьому телефоні — тоді нова версія файлу сама оновить GitHub при відкритті</span></label>
     <label class="chkl"><input type="checkbox" id="ghPublic" checked> <span>Зробити репозиторій публічним — без цього безкоштовний GitHub Pages не працює</span></label>
     <button class="btnMain" id="ghGo">⬆️ 3. Зберегти на GitHub і встановити</button>
     <div id="pubLog"></div>
-    <p style="font-size:11px;opacity:.55;margin-top:10px">Токен ніде не зберігається і надсилається тільки на api.github.com.</p>`);
-  $('ghGo').onclick = publishToGitHub;
+    ${saved ? '<button class="btnLink" id="ghForget" style="width:100%">🗑 Забути збережений токен</button>' : ''}
+    <p style="font-size:11px;opacity:.55;margin-top:10px">Токен надсилається тільки на api.github.com. Версія файлу: ${APP_BUILD}</p>`);
+  $('ghGo').onclick = publishFromDialog;
+  if (saved) $('ghForget').onclick = () => { ls.set('ghToken', null); toast('Токен видалено з телефону'); publishDialog(); };
 }
 function b64utf8(str) {
   const bytes = new TextEncoder().encode(str); let bin = '';
   for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
   return btoa(bin);
 }
-async function publishToGitHub() {
-  const owner = $('ghOwner').value.trim(), repo = $('ghRepo').value.trim(), token = $('ghToken').value.trim();
+function unb64utf8(b64) { const bin = atob(b64.replace(/\s/g, '')); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new TextDecoder().decode(u); }
+function ghApi(token) {
+  return (path, opt = {}) => fetch('https://api.github.com' + path, Object.assign({}, opt, {
+    cache: 'no-store',
+    headers: Object.assign({ Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }, opt.body ? { 'Content-Type': 'application/json' } : {})
+  }));
+}
+// версія, яка зараз лежить на GitHub (0 — файлу ще немає)
+async function remoteBuild(api, g) {
+  const r = await api(`/repos/${g.owner}/${g.repo}/contents/index.html`);
+  if (r.status === 404) return 0;
+  if (r.status === 401) throw Object.assign(new Error('Токен неправильний або прострочений — згенеруйте новий'), { auth: true });
+  if (!r.ok) throw new Error('GitHub відповів помилкою ' + r.status);
+  const j = await r.json(); return buildOf(unb64utf8(j.content || ''));
+}
+// головна частина: зберегти цей файл + службові файли, увімкнути Pages
+async function publishCore({ g, token, makePublic, say, wait = true }) {
+  const { owner, repo } = g, api = ghApi(token);
+  let r = await api('/user');
+  if (r.status === 401) throw Object.assign(new Error('Токен неправильний або прострочений — згенеруйте новий'), { auth: true });
+  if (!r.ok) throw new Error('GitHub відповів помилкою ' + r.status);
+  const me = await r.json(); say('✔ Вхід: ' + me.login, 'ok');
+  r = await api(`/repos/${owner}/${repo}`);
+  let info;
+  if (r.status === 404) {
+    if (me.login.toLowerCase() !== owner.toLowerCase()) throw new Error('Репозиторій не знайдено');
+    r = await api('/user/repos', { method: 'POST', body: JSON.stringify({ name: repo, private: !makePublic, description: 'Точки перетину — симуляція дзеркальних відбиттів' }) });
+    if (!r.ok) throw new Error('Не вдалося створити репозиторій (' + r.status + ')');
+    info = await r.json(); say('✔ Створено репозиторій ' + repo, 'ok');
+  } else if (r.ok) { info = await r.json(); say('✔ Репозиторій знайдено', 'ok'); }
+  else throw new Error('Немає доступу до репозиторію (' + r.status + '). Чи має токен галочку «repo»?');
+  if (info.private && makePublic) {
+    r = await api(`/repos/${owner}/${repo}`, { method: 'PATCH', body: JSON.stringify({ private: false }) });
+    if (!r.ok) throw new Error('Не вдалося зробити репозиторій публічним (' + r.status + ')');
+    info = await r.json(); say('✔ Репозиторій тепер публічний', 'ok');
+  } else if (info.private) say('⚠ Репозиторій приватний — Pages може не запрацювати', 'err');
+  const branch = info.default_branch || 'main';
+  const putFile = async (path, b64, msg) => {
+    let sh; const gr = await api(`/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`);
+    if (gr.ok) sh = (await gr.json()).sha;
+    let p = await api(`/repos/${owner}/${repo}/contents/${path}`, { method: 'PUT', body: JSON.stringify(Object.assign({ message: msg, content: b64, branch }, sh ? { sha: sh } : {})) });
+    if (!p.ok && p.status === 404 && !sh) p = await api(`/repos/${owner}/${repo}/contents/${path}`, { method: 'PUT', body: JSON.stringify({ message: msg, content: b64 }) });
+    if (!p.ok) throw new Error('Не вдалося зберегти ' + path + ' (' + p.status + ')');
+  };
+  await putFile('index.html', b64utf8(SELF_HTML), 'Точки перетину: версія ' + APP_BUILD);
+  say('✔ Файл index.html (версія ' + APP_BUILD + ') збережено', 'ok');
+  const manifest = {
+    name: 'Точки перетину — симуляція відбиттів', short_name: 'Точки перетину', lang: 'uk',
+    id: './', start_url: './', scope: './', display: 'standalone', orientation: 'portrait',
+    background_color: '#060913', theme_color: '#060913',
+    icons: [
+      { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+    ]
+  };
+  // офлайн-режим: сторінка завжди береться свіжа з мережі, кеш — лише без інтернету
+  const sw = `const C='tochky-${APP_BUILD}-${Date.now()}';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'])).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+self.addEventListener('message',e=>{if(e.data==='skipWaiting')self.skipWaiting()});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request,{cache:'no-cache'}).then(r=>{const c=r.clone();caches.open(C).then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request,{ignoreSearch:true}).then(r=>r||caches.match('./index.html'))))});`;
+  await putFile('manifest.webmanifest', b64utf8(JSON.stringify(manifest, null, 2)), 'Опис застосунку');
+  await putFile('icon-192.png', ICON192.split(',')[1], 'Іконка 192');
+  await putFile('icon-512.png', ICON512.split(',')[1], 'Іконка 512');
+  await putFile('sw.js', b64utf8(sw), 'Офлайн-режим, версія ' + APP_BUILD);
+  say('✔ Іконки й опис для встановлення збережено', 'ok');
+  r = await api(`/repos/${owner}/${repo}/pages`);
+  if (r.status === 404) {
+    r = await api(`/repos/${owner}/${repo}/pages`, { method: 'POST', body: JSON.stringify({ source: { branch, path: '/' } }) });
+    if (!r.ok && r.status !== 409) throw new Error('Не вдалося увімкнути GitHub Pages (' + r.status + ')');
+    say('✔ GitHub Pages увімкнено', 'ok');
+  } else say('✔ GitHub Pages вже увімкнено', 'ok');
+  if (!wait) return { built: false };
+  say('⏳ GitHub збирає сайт (зазвичай 1–2 хв)...');
+  for (let i = 0; i < 40; i++) {
+    await new Promise(res => setTimeout(res, 5000));
+    const bq = await api(`/repos/${owner}/${repo}/pages/builds/latest`);
+    if (bq.ok) { const j = await bq.json(); if (j.status === 'built') return { built: true }; if (j.status === 'errored') throw new Error('Помилка збірки сайту на GitHub'); }
+  }
+  return { built: false };
+}
+async function publishFromDialog() {
+  const g = { owner: $('ghOwner').value.trim(), repo: $('ghRepo').value.trim() };
+  const token = $('ghToken').value.trim() || ls.get('ghToken') || '';
   const log = $('pubLog'), btn = $('ghGo');
   const say = (t, cls) => { log.innerHTML += `<div class="${cls || ''}">${t}</div>`; };
   log.innerHTML = '';
-  if (!owner || !repo) { say('Вкажіть логін і репозиторій', 'err'); return; }
+  if (!g.owner || !g.repo) { say('Вкажіть логін і репозиторій', 'err'); return; }
   if (!token) { say('Спершу згенеруйте і вставте токен', 'err'); return; }
-  try { localStorage.setItem('ghTarget', JSON.stringify({ owner, repo })); } catch (e) {}
-  const api = (path, opt = {}) => fetch('https://api.github.com' + path, Object.assign({}, opt, {
-    headers: Object.assign({ Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }, opt.body ? { 'Content-Type': 'application/json' } : {})
-  }));
+  ls.set('ghTarget', JSON.stringify(g)); ls.set('ghAsked', '1');
   btn.disabled = true; btn.textContent = '⏳ Працюю...';
   try {
-    // 1. перевірка токена
-    let r = await api('/user');
-    if (r.status === 401) throw new Error('Токен неправильний або прострочений — згенеруйте новий');
-    if (!r.ok) throw new Error('GitHub відповів помилкою ' + r.status);
-    const me = await r.json(); say('✔ Вхід: ' + me.login, 'ok');
-    // 2. репозиторій (створити, якщо немає)
-    r = await api(`/repos/${owner}/${repo}`);
-    let info;
-    if (r.status === 404) {
-      if (me.login.toLowerCase() !== owner.toLowerCase()) throw new Error('Репозиторій не знайдено');
-      r = await api('/user/repos', { method: 'POST', body: JSON.stringify({ name: repo, private: !$('ghPublic').checked, description: 'Точки перетину — симуляція дзеркальних відбиттів' }) });
-      if (!r.ok) throw new Error('Не вдалося створити репозиторій (' + r.status + ')');
-      info = await r.json(); say('✔ Створено репозиторій ' + repo, 'ok');
-    } else if (r.ok) { info = await r.json(); say('✔ Репозиторій знайдено', 'ok'); }
-    else throw new Error('Немає доступу до репозиторію (' + r.status + '). Чи має токен галочку «repo»?');
-    // 3. публічний
-    if (info.private && $('ghPublic').checked) {
-      r = await api(`/repos/${owner}/${repo}`, { method: 'PATCH', body: JSON.stringify({ private: false }) });
-      if (!r.ok) throw new Error('Не вдалося зробити репозиторій публічним (' + r.status + ')');
-      info = await r.json(); say('✔ Репозиторій тепер публічний', 'ok');
-    } else if (info.private) say('⚠ Репозиторій приватний — Pages може не запрацювати', 'err');
-    // 4. завантаження файлу
-    const branch = info.default_branch || 'main';
-    let sha;
-    r = await api(`/repos/${owner}/${repo}/contents/index.html?ref=${encodeURIComponent(branch)}`);
-    if (r.ok) sha = (await r.json()).sha;
-    r = await api(`/repos/${owner}/${repo}/contents/index.html`, { method: 'PUT', body: JSON.stringify(Object.assign({ message: 'Точки перетину: оновлення з телефону', content: b64utf8(SELF_HTML), branch }, sha ? { sha } : {})) });
-    if (!r.ok && r.status === 404 && !sha) r = await api(`/repos/${owner}/${repo}/contents/index.html`, { method: 'PUT', body: JSON.stringify({ message: 'Точки перетину', content: b64utf8(SELF_HTML) }) });
-    if (!r.ok) throw new Error('Не вдалося зберегти файл (' + r.status + ')');
-    const put = await r.json(); const usedBranch = (put.commit && branch) || branch;
-    say('✔ Файл index.html збережено', 'ok');
-    // 5. GitHub Pages
-    r = await api(`/repos/${owner}/${repo}/pages`);
-    if (r.status === 404) {
-      r = await api(`/repos/${owner}/${repo}/pages`, { method: 'POST', body: JSON.stringify({ source: { branch: usedBranch, path: '/' } }) });
-      if (!r.ok && r.status !== 409) throw new Error('Не вдалося увімкнути GitHub Pages (' + r.status + ')');
-      say('✔ GitHub Pages увімкнено', 'ok');
-    } else say('✔ GitHub Pages вже увімкнено', 'ok');
-    const site = `https://${owner.toLowerCase()}.github.io/${repo}/`;
-    // 6. чекаємо збірку сайту
-    say('⏳ GitHub збирає сайт (зазвичай 1–2 хв)...');
-    let built = false;
-    for (let i = 0; i < 40 && !built; i++) {
-      await new Promise(res => setTimeout(res, 5000));
-      const b = await api(`/repos/${owner}/${repo}/pages/builds/latest`);
-      if (b.ok) { const j = await b.json(); if (j.status === 'built') built = true; else if (j.status === 'errored') throw new Error('Помилка збірки сайту на GitHub'); }
-    }
-    say(built ? '✅ Готово!' : '⚠ Збірка ще триває — відкрийте посилання за хвилину', built ? 'ok' : '');
+    const res = await publishCore({ g, token, makePublic: $('ghPublic').checked, say });
+    ls.set('ghToken', $('ghRemember').checked ? token : null);
+    const site = siteOf(g);
+    say(res.built ? '✅ Готово!' : '⚠ Збірка ще триває — відкрийте посилання за хвилину', res.built ? 'ok' : '');
     log.innerHTML += `<a class="btnLink" style="background:#1d7a4a;border-color:#2fd47e" href="${site}" target="_blank" rel="noopener">🚀 Відкрити і встановити</a>
       <p style="font-size:12px;opacity:.8">На сторінці натисніть <b>📲 На головний екран</b> ще раз — з'явиться вікно встановлення. Адреса для друзів:<br><b>${site}</b></p>`;
     btn.textContent = '✅ Збережено';
   } catch (e) {
+    if (e.auth) ls.set('ghToken', null);
     say('✖ ' + (e.message || e), 'err');
     btn.disabled = false; btn.textContent = '⬆️ 3. Зберегти на GitHub і встановити';
   }
 }
+
+/* ---------- автоматичне оновлення ---------- */
+function banner(html, actions = [], sticky = false) {
+  let el = $('updBar');
+  if (!el) { el = document.createElement('div'); el.id = 'updBar'; document.body.appendChild(el); }
+  el.innerHTML = `<div class="ubText">${html}</div><div class="ubBtns"></div>`;
+  const box = el.querySelector('.ubBtns');
+  for (const [label, fn, cls] of actions) { const b = document.createElement('button'); b.textContent = label; if (cls) b.className = cls; b.onclick = fn; box.appendChild(b); }
+  const x = document.createElement('button'); x.textContent = '✕'; x.onclick = () => el.classList.remove('on'); box.appendChild(x);
+  el.classList.add('on');
+  clearTimeout(el._t); if (!sticky) el._t = setTimeout(() => el.classList.remove('on'), 9000);
+}
+// 1) нова версія файлу, відкрита на телефоні з токеном → сама оновлює GitHub
+async function autoPublishIfNewer() {
+  const token = ls.get('ghToken'); if (!token || onPages) return;
+  const g = ghSaved(), api = ghApi(token);
+  let rb;
+  try { rb = await remoteBuild(api, g); }
+  catch (e) { if (e.auth) { ls.set('ghToken', null); banner('🔑 Токен GitHub прострочений — оновлення не відправлено', [['Ввести новий', publishDialog, 'ok']], true); } return; }
+  if (rb >= APP_BUILD) return;
+  banner(`⬆️ Оновлюю застосунок на GitHub: версія ${rb || '—'} → <b>${APP_BUILD}</b>…`, [], true);
+  try {
+    await publishCore({ g, token, makePublic: true, say: () => {}, wait: false });
+    banner(`✅ GitHub оновлено до версії <b>${APP_BUILD}</b>. Встановлені застосунки покажуть сповіщення про оновлення за 1–2 хв.`, [['Відкрити сайт', () => open(siteOf(g), '_blank'), 'ok']], true);
+  } catch (e) {
+    banner('✖ Не вдалося оновити GitHub: ' + (e.message || e), [['Спробувати ще', autoPublishIfNewer, 'ok']], true);
+  }
+}
+// 2) встановлений застосунок і копії файлу перевіряють, чи немає новішої версії
+let updShown = 0;
+async function checkForUpdate() {
+  if (!navigator.onLine) return;
+  const g = ghSaved();
+  const url = (onPages ? new URL('index.html', location.href).href : siteOf(g) + 'index.html') + '?check=' + Date.now();
+  let html;
+  try { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) return; html = await r.text(); } catch (e) { return; }
+  const rb = buildOf(html);
+  if (rb <= APP_BUILD || rb === updShown) return;
+  updShown = rb;
+  if (onPages) {
+    banner(`🔄 Доступна нова версія <b>${rb}</b> (у вас ${APP_BUILD})`, [['Оновити', applyUpdate, 'ok']], true);
+  } else {
+    banner(`🔄 На GitHub є нова версія <b>${rb}</b> (цей файл — ${APP_BUILD})`, [
+      ['Відкрити', () => open(siteOf(g), '_blank'), 'ok'],
+      ['Завантажити файл', () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = 'reflection-points-v' + rb + '.html'; document.body.appendChild(a); a.click(); a.remove(); }]
+    ], true);
+  }
+}
+async function applyUpdate() {
+  banner('⏳ Оновлюю…', [], true);
+  try {
+    const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+    if (reg) { await reg.update(); if (reg.waiting) reg.waiting.postMessage('skipWaiting'); }
+  } catch (e) {}
+  const u = new URL(location.href); u.searchParams.set('v', Date.now()); location.replace(u.href);
+}
+if (/[?&]v=\d+/.test(location.search)) { const u = new URL(location.href); u.searchParams.delete('v'); history.replaceState(null, '', u.pathname + (u.search === '?' ? '' : u.search) + u.hash); }
+setTimeout(() => { autoPublishIfNewer(); checkForUpdate(); }, 2500);
+setInterval(checkForUpdate, 30 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkForUpdate(); });
 const SHARE_TEXT = 'Чи влучать усі в одну точку? 🎯 Симуляція дзеркальних відбиттів — спробуй сам:';
 const FILE_NAME = 'tochky-peretynu.html';
 const selfFile = () => new File([SELF_HTML], FILE_NAME, { type: 'text/html' });
